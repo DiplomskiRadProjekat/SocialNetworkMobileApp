@@ -2,6 +2,8 @@ package com.example.social_network.services;
 
 import com.example.social_network.dtos.AuthenticationRequestDTO;
 import com.example.social_network.dtos.AuthenticationResponseDTO;
+import com.example.social_network.dtos.NewUserDTO;
+import com.example.social_network.dtos.UserDTO;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -17,5 +19,8 @@ public interface IAuthService {
 
     @POST(ServiceUtils.auth + "/login")
     Call<AuthenticationResponseDTO> login(@Body AuthenticationRequestDTO authenticationRequestDTO);
+
+    @POST(ServiceUtils.auth + "/register")
+    Call<UserDTO> register(@Body NewUserDTO newUserDTO);
 
 }
