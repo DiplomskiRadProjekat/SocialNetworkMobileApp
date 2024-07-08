@@ -1,6 +1,7 @@
 package com.example.social_network;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
@@ -22,8 +23,6 @@ import com.example.social_network.dtos.AuthenticationResponseDTO;
 import com.example.social_network.dtos.Token;
 import com.example.social_network.services.IAuthService;
 import com.example.social_network.services.ServiceUtils;
-
-import java.io.IOException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -155,8 +154,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         textViewRegister.setOnClickListener(view -> {
-//            Intent intent = new Intent(this, RegisterScreen.class);
-//            startActivity(intent);
+            startActivity(new Intent(this, RegistrationActivity.class));
         });
     }
 
