@@ -80,7 +80,7 @@
                 android:layout_gravity="end|center_vertical"
                 android:contentDescription="@string/visibility_icon"
                 android:padding="12dp"
-                android:src="@drawable/outline_visibility_off_24" />
+                android:src="@drawable/ic_visibility_off" />
         </FrameLayout>
 
         <Button

@@ -18,6 +18,10 @@ public class ServiceUtils {
 
     protected static final String auth = "auth";
 
+    protected static final String user = "users";
+
+    protected static final String friendRequests = "friend-requests";
+
     public static OkHttpClient.Builder httpClientBuilder(String authToken) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -50,6 +54,14 @@ public class ServiceUtils {
 
     public static IAuthService authService(String authToken) {
         return retrofit(authToken).create(IAuthService.class);
+    }
+
+    public static IUserService userService(String authToken) {
+        return retrofit(authToken).create(IUserService.class);
+    }
+
+    public static IFriendRequestService friendRequestService(String authToken) {
+        return retrofit(authToken).create(IFriendRequestService.class);
     }
 
 }

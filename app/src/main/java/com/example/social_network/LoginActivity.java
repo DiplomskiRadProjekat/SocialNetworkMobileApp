@@ -75,10 +75,10 @@ public class LoginActivity extends AppCompatActivity {
         togglePasswordVisibility.setOnClickListener(v -> {
             if (isPasswordVisible) {
                 editTextPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                togglePasswordVisibility.setImageResource(R.drawable.outline_visibility_off_24);
+                togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
             } else {
                 editTextPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                togglePasswordVisibility.setImageResource(R.drawable.outline_visibility_24);
+                togglePasswordVisibility.setImageResource(R.drawable.ic_visibility);
             }
             isPasswordVisible = !isPasswordVisible;
 
@@ -131,7 +131,9 @@ public class LoginActivity extends AppCompatActivity {
                                 setTokenPreference(tokenDTO.getToken(), tokenDTO.getRefreshToken());
 
                                 // TODO: change to home screen
-//                                startActivity(new Intent(LoginActivity.this, HostMainScreen.class));
+                                Intent intent = new Intent(LoginActivity.this, ProfileActivity.class);
+                                intent.putExtra("userId", id);
+                                startActivity(intent);
 
                             } else {
                                 Log.e("Error", "Login failed.");
