@@ -85,10 +85,10 @@ public class RegistrationActivity extends AppCompatActivity {
         togglePasswordVisibility.setOnClickListener(v -> {
             if (isPasswordVisible) {
                 editTextPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                togglePasswordVisibility.setImageResource(R.drawable.outline_visibility_off_24);
+                togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off);
             } else {
                 editTextPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                togglePasswordVisibility.setImageResource(R.drawable.outline_visibility_24);
+                togglePasswordVisibility.setImageResource(R.drawable.ic_visibility);
             }
             isPasswordVisible = !isPasswordVisible;
 
