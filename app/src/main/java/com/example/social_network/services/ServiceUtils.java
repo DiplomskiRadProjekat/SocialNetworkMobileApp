@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ServiceUtils {
 
-    private static final String SERVICE_API_PATH = "http://192.168.1.12:8081/api/v1/";
+    private static final String SERVICE_API_PATH = "http://192.168.1.13:8081/api/v1/";
 
     protected static final String auth = "auth";
 

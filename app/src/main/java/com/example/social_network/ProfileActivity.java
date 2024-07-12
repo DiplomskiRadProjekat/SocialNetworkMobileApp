@@ -146,13 +146,14 @@ public class ProfileActivity extends AppCompatActivity {
                 // startActivity(new Intent(ProfileActivity.this, ChatActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                Intent intent = new Intent(ProfileActivity.this, ProfileActivity.class);
-                intent.putExtra("userId", myId);
-                startActivity(intent);
+//                Intent intent = new Intent(ProfileActivity.this, ProfileActivity.class);
+//                intent.putExtra("userId", myId);
+//                startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_settings) {
-                //TODO: dodaj settings
-                // startActivity(new Intent(ProfileActivity.this, SettingsActivity.class));
+                Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
+                intent.putExtra("userId", myId);
+                startActivity(intent);
                 return true;
             }
             return false;
