@@ -26,5 +26,4 @@ public interface IUserService {
 
     @PUT(ServiceUtils.user + "/{id}")
     Call<UserDTO> update(@Path("id") Long id, @Body UpdateUserDTO updateUserDTO);
-
 }
