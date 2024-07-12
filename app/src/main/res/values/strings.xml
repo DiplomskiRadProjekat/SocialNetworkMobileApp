@@ -26,4 +26,12 @@
     <string name="waiting_for_response">Waiting for response</string>
     <string name="friends_upper_case">Friends</string>
     <string name="trash_icon">Trash icon</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="save_changes">Save changes</string>
+    <string name="change_password">Change password</string>
+    <string name="current_password">Current password</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
 </resources>
