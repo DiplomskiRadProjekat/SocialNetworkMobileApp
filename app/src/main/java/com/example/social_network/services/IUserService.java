@@ -6,6 +6,7 @@ import com.example.social_network.dtos.UserDTO;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.PUT;
@@ -26,4 +27,8 @@ public interface IUserService {
 
     @PUT(ServiceUtils.user + "/{id}")
     Call<UserDTO> update(@Path("id") Long id, @Body UpdateUserDTO updateUserDTO);
+
+    @DELETE(ServiceUtils.user + "/{id}")
+    Call<Void> delete(@Path("id") Long id);
+
 }

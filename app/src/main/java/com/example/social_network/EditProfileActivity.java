@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +40,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private EditText editTextFirstName, editTextLastName, editTextEmail, editTextUsername, editTextCurrentPassword, editTextNewPassword, editTextConfirmPassword;
 
-    private Button buttonSaveChanges, buttonCancel, buttonSave;
+    private Button buttonSaveChanges;
 
     private TextView textViewChangePassword, textViewNewPassword, textViewCurrentPassword, textViewConfirmPassword;
 
@@ -214,8 +216,8 @@ public class EditProfileActivity extends AppCompatActivity {
         textViewNewPassword = dialog.findViewById(R.id.newPasswordLabel);
         textViewConfirmPassword = dialog.findViewById(R.id.confirmPasswordLabel);
 
-        buttonCancel = dialog.findViewById(R.id.cancelButton);
-        buttonSave = dialog.findViewById(R.id.saveButton);
+        Button buttonCancel = dialog.findViewById(R.id.cancelButton);
+        Button buttonSave = dialog.findViewById(R.id.saveButton);
 
         buttonCancel.setOnClickListener(v -> dialog.dismiss());
 
@@ -379,9 +381,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_settings) {
-                Intent intent = new Intent(EditProfileActivity.this, EditProfileActivity.class);
-                intent.putExtra("userId", myId);
-                startActivity(intent);
+                showSettingsMenu();
                 return true;
             }
             return false;
@@ -405,4 +405,75 @@ public class EditProfileActivity extends AppCompatActivity {
     private void resetError(EditText editText) {
         editText.setBackgroundResource(R.drawable.edit_text);
     }
+
+    private void showSettingsMenu() {
+        View view = findViewById(R.id.nav_settings);
+        Context wrapper = new ContextThemeWrapper(this, R.style.CustomPopupMenu);
+        PopupMenu popup = new PopupMenu(wrapper, view);
+        popup.getMenuInflater().inflate(R.menu.settings_menu, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.action_edit_profile) {
+                return true;
+            } else if (itemId == R.id.action_delete_profile) {
+                showAreYouSureDialog();
+                return true;
+            } else if (itemId == R.id.action_logout) {
+                deletePreferences();
+                startActivity(new Intent(EditProfileActivity.this, LoginActivity.class));
+                return true;
+            }
+            return false;
+        });
+
+        popup.show();
+    }
+
+    private void showAreYouSureDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.popup_are_you_sure);
+
+        Button buttonYes = dialog.findViewById(R.id.yesButton);
+        Button buttonNo = dialog.findViewById(R.id.noButton);
+
+        buttonNo.setOnClickListener(v -> dialog.dismiss());
+
+        buttonYes.setOnClickListener(v -> {
+            deleteProfile();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void deleteProfile() {
+        Call<Void> call = ServiceUtils.userService(token).delete(myId);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.i("Success", response.message());
+                    deletePreferences();
+                    startActivity(new Intent(EditProfileActivity.this, LoginActivity.class));
+                    Toast.makeText(EditProfileActivity.this, "Successfully deleted profile!", Toast.LENGTH_SHORT).show();
+                } else {
+                    onFailure(call, new Throwable("API call failed with status code: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, Throwable t) {
+                Log.d("Fail", Objects.requireNonNull(t.getMessage()));
+            }
+        });
+    }
+
+    private void deletePreferences(){
+        SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor spEditor = sharedPreferences.edit();
+        spEditor.clear().apply();
+    }
+
 }

@@ -34,4 +34,9 @@
     <string name="confirm_password">Confirm password</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+    <string name="delete_profile">Delete Profile</string>
+    <string name="logout">Logout</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="are_you_sure">Are you sure?</string>
 </resources>
