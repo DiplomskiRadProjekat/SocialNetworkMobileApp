@@ -10,4 +10,8 @@
         <item name="android:statusBarColor">@color/primaryDarkColor</item>
         <item name="android:windowBackground">@color/backgroundColor</item>
     </style>
+
+    <style name="CustomPopupMenu" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:popupBackground">@color/secondaryColor</item>
+    </style>
 </resources>

@@ -1,15 +1,19 @@
 package com.example.social_network;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -146,14 +150,9 @@ public class ProfileActivity extends AppCompatActivity {
                 // startActivity(new Intent(ProfileActivity.this, ChatActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
-//                Intent intent = new Intent(ProfileActivity.this, ProfileActivity.class);
-//                intent.putExtra("userId", myId);
-//                startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_settings) {
-                Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
-                intent.putExtra("userId", myId);
-                startActivity(intent);
+                showSettingsMenu();
                 return true;
             }
             return false;
@@ -231,6 +230,81 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.d("Fail", Objects.requireNonNull(t.getMessage()));
             }
         });
+    }
+
+    private void showSettingsMenu() {
+        View view = findViewById(R.id.nav_settings);
+        Context wrapper = new ContextThemeWrapper(this, R.style.CustomPopupMenu);
+        PopupMenu popup = new PopupMenu(wrapper, view);
+        popup.getMenuInflater().inflate(R.menu.settings_menu, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.action_edit_profile) {
+                Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
+                intent.putExtra("userId", myId);
+                startActivity(intent);
+                return true;
+            } else if (itemId == R.id.action_delete_profile) {
+                showAreYouSureDialog();
+                deletePreferences();
+                startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
+                return true;
+            } else if (itemId == R.id.action_logout) {
+                deletePreferences();
+                startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
+                return true;
+            }
+            return false;
+        });
+
+        popup.show();
+    }
+
+    private void showAreYouSureDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.popup_are_you_sure);
+
+        Button buttonYes = dialog.findViewById(R.id.yesButton);
+        Button buttonNo = dialog.findViewById(R.id.noButton);
+
+        buttonNo.setOnClickListener(v -> dialog.dismiss());
+
+        buttonYes.setOnClickListener(v -> {
+            deleteProfile();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void deleteProfile() {
+        Call<Void> call = ServiceUtils.userService(token).delete(myId);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.i("Success", response.message());
+                    deletePreferences();
+                    startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
+                    Toast.makeText(ProfileActivity.this, "Successfully deleted profile!", Toast.LENGTH_SHORT).show();
+                } else {
+                    onFailure(call, new Throwable("API call failed with status code: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, Throwable t) {
+                Log.d("Fail", Objects.requireNonNull(t.getMessage()));
+            }
+        });
+    }
+
+    private void deletePreferences(){
+        SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor spEditor = sharedPreferences.edit();
+        spEditor.clear().apply();
     }
 
 }
