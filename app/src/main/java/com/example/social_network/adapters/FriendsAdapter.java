@@ -2,6 +2,7 @@ package com.example.social_network.adapters;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,12 +10,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.social_network.ProfileActivity;
 import com.example.social_network.R;
 import com.example.social_network.dtos.UserDTO;
 import com.example.social_network.services.ServiceUtils;
@@ -59,8 +62,12 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
 
         holder.textViewUsername.setText(String.format("@%s", item.getUsername()));
 
-        holder.buttonDelete.setOnClickListener(view -> {
-            showAreYouSureDialog(item.getId(), position);
+        holder.buttonDelete.setOnClickListener(view -> showAreYouSureDialog(item.getId(), position));
+
+        holder.linearLayoutProfile.setOnClickListener(view -> {
+            Intent intent = new Intent(context, ProfileActivity.class);
+            intent.putExtra("userId", item.getId());
+            context.startActivity(intent);
         });
 
         if (myProfile) {
@@ -83,11 +90,14 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
 
         ImageButton buttonDelete;
 
+        LinearLayout linearLayoutProfile;
+
         public ViewHolder(View itemView) {
             super(itemView);
             imageViewProfileImage = itemView.findViewById(R.id.profile_image);
             textViewUsername = itemView.findViewById(R.id.username);
             buttonDelete = itemView.findViewById(R.id.delete_button);
+            linearLayoutProfile = itemView.findViewById(R.id.profile);
         }
     }
 
