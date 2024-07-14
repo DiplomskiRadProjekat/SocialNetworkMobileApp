@@ -368,8 +368,9 @@ public class EditProfileActivity extends AppCompatActivity {
                 // startActivity(new Intent(EditProfileActivity.this, HomeActivity.class));
                 return true;
             } else if (itemId == R.id.nav_friend_requests) {
-                //TODO: dodaj friend requests
-                // startActivity(new Intent(EditProfileActivity.this, FriendRequestsActivity.class));
+                Intent intent = new Intent(EditProfileActivity.this, FriendRequestsActivity.class);
+                intent.putExtra("userId", myId);
+                startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_chat) {
                 //TODO: dodaj chat

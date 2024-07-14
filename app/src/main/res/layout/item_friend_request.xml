@@ -31,12 +31,19 @@
         android:layout_marginStart="20dp"/>
 
     <ImageButton
-        android:id="@+id/delete_button"
+        android:id="@+id/acceptButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:src="@drawable/ic_trash"
+        android:src="@drawable/ic_check"
         android:background="?attr/selectableItemBackground"
-        android:contentDescription="@string/trash_icon"
-        app:tint="@color/primaryColor" />
+        android:contentDescription="@string/accept" />
+
+    <ImageButton
+        android:id="@+id/declineButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_close"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/decline" />
 
 </LinearLayout>

@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.social_network.fragments.FriendRequestsFragment;
 import com.example.social_network.fragments.FriendsFragment;
 import com.example.social_network.services.ServiceUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -27,7 +28,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FriendsActivity extends AppCompatActivity {
+public class FriendRequestsActivity extends AppCompatActivity {
 
     private String token;
 
@@ -45,30 +46,27 @@ public class FriendsActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
-        setContentView(R.layout.activity_friends);
+        setContentView(R.layout.activity_friend_requests);
 
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         token = sharedPreferences.getString("pref_token", "");
         myId = sharedPreferences.getLong("pref_id", 0);
 
-        TextView textViewTitle = findViewById(R.id.title);
 
         Intent intent = getIntent();
         if (intent != null) {
-            textViewTitle.setText(String.format("%s's friends list: ", intent.getStringExtra("username")));
             userId = intent.getLongExtra("userId", 0L);
         }
 
-        boolean myProfile = myId.equals(userId);
-
         if (savedInstanceState == null) {
-            FriendsFragment fragment = new FriendsFragment(userId, myProfile);
+            FriendRequestsFragment fragment = new FriendRequestsFragment(userId);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragmentContainer, fragment);
             transaction.commit();
         }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.nav_friend_requests);
         setupBottomNavigationListener();
     }
 
@@ -80,16 +78,13 @@ public class FriendsActivity extends AppCompatActivity {
                 // startActivity(new Intent(EditProfileActivity.this, HomeActivity.class));
                 return true;
             } else if (itemId == R.id.nav_friend_requests) {
-                Intent intent = new Intent(FriendsActivity.this, FriendRequestsActivity.class);
-                intent.putExtra("userId", myId);
-                startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_chat) {
                 //TODO: dodaj chat
                 // startActivity(new Intent(EditProfileActivity.this, ChatActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                Intent intent = new Intent(FriendsActivity.this, ProfileActivity.class);
+                Intent intent = new Intent(FriendRequestsActivity.this, ProfileActivity.class);
                 intent.putExtra("userId", myId);
                 startActivity(intent);
                 return true;
@@ -99,8 +94,6 @@ public class FriendsActivity extends AppCompatActivity {
             }
             return false;
         });
-
-        bottomNavigationView.getMenu().setGroupCheckable(0, false, true);
     }
 
     private void showSettingsMenu() {
@@ -112,7 +105,7 @@ public class FriendsActivity extends AppCompatActivity {
         popup.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.action_edit_profile) {
-                Intent intent = new Intent(FriendsActivity.this, EditProfileActivity.class);
+                Intent intent = new Intent(FriendRequestsActivity.this, EditProfileActivity.class);
                 intent.putExtra("userId", myId);
                 startActivity(intent);
                 return true;
@@ -121,7 +114,7 @@ public class FriendsActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.action_logout) {
                 deletePreferences();
-                startActivity(new Intent(FriendsActivity.this, LoginActivity.class));
+                startActivity(new Intent(FriendRequestsActivity.this, LoginActivity.class));
                 return true;
             }
             return false;
@@ -156,8 +149,8 @@ public class FriendsActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     Log.i("Success", response.message());
                     deletePreferences();
-                    startActivity(new Intent(FriendsActivity.this, LoginActivity.class));
-                    Toast.makeText(FriendsActivity.this, "Successfully deleted profile!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(FriendRequestsActivity.this, LoginActivity.class));
+                    Toast.makeText(FriendRequestsActivity.this, "Successfully deleted profile!", Toast.LENGTH_SHORT).show();
                 } else {
                     onFailure(call, new Throwable("API call failed with status code: " + response.code()));
                 }
