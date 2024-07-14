@@ -132,6 +132,13 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             });
         });
+
+        textViewFriends.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, FriendsActivity.class);
+            intent.putExtra("userId", userId);
+            intent.putExtra("username", textViewUsername.getText().toString());
+            startActivity(intent);
+        });
     }
 
     private void setupBottomNavigationListener() {

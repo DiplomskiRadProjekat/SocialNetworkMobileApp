@@ -4,6 +4,8 @@ import com.example.social_network.dtos.PasswordChangeDTO;
 import com.example.social_network.dtos.UpdateUserDTO;
 import com.example.social_network.dtos.UserDTO;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -30,5 +32,8 @@ public interface IUserService {
 
     @DELETE(ServiceUtils.user + "/{id}")
     Call<Void> delete(@Path("id") Long id);
+
+    @GET(ServiceUtils.user + "/{id}/friends")
+    Call<List<UserDTO>> getAllFriends(@Path("id") Long id);
 
 }

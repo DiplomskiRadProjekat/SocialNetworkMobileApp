@@ -107,7 +107,7 @@
             app:menu="@menu/bottom_nav_menu"
             app:itemIconTint="@drawable/bottom_nav_color"
             app:itemTextColor="@drawable/bottom_nav_color"
-            app:labelVisibilityMode="selected"
+            app:labelVisibilityMode="unlabeled"
             app:itemIconSize="30dp"/>
 
     </RelativeLayout>
