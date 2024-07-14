@@ -322,7 +322,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<Void> call, Throwable t) {
+                    public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                         Log.d("Fail", Objects.requireNonNull(t.getMessage()));
                     }
                 });
