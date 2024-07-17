@@ -10,6 +10,7 @@
     tools:context=".ProfileActivity">
 
     <LinearLayout
+        android:id="@+id/profile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -115,7 +116,6 @@
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
-            
         </LinearLayout>
 
         <Button
@@ -189,22 +189,23 @@
 
     </LinearLayout>
 
-    <RelativeLayout
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/profile"
+        android:layout_above="@id/bottom_navigation" />
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@color/primaryColor"
-            app:menu="@menu/bottom_nav_menu"
-            app:itemIconTint="@drawable/bottom_nav_color"
-            app:itemTextColor="@drawable/bottom_nav_color"
-            app:labelVisibilityMode="unlabeled"
-            app:itemIconSize="30dp"/>
-
-    </RelativeLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/primaryColor"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@drawable/bottom_nav_color"
+        app:itemTextColor="@drawable/bottom_nav_color"
+        app:labelVisibilityMode="unlabeled"
+        app:itemIconSize="30dp"/>
 
 </RelativeLayout>

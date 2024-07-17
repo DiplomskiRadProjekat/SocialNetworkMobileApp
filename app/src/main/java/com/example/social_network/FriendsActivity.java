@@ -76,8 +76,7 @@ public class FriendsActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                //TODO: dodaj home
-                // startActivity(new Intent(EditProfileActivity.this, HomeActivity.class));
+                startActivity(new Intent(FriendsActivity.this, HomeActivity.class));
                 return true;
             } else if (itemId == R.id.nav_friend_requests) {
                 Intent intent = new Intent(FriendsActivity.this, FriendRequestsActivity.class);

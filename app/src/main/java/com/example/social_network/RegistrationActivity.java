@@ -165,6 +165,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         } else {
                             if (response.code() == 400) {
                                 try {
+                                    assert response.errorBody() != null;
                                     JSONObject errorBody = new JSONObject(response.errorBody().string());
                                     Map<String, String> errors = new HashMap<>();
 
@@ -228,9 +229,7 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         });
 
-        textViewLogin.setOnClickListener(view -> {
-            startActivity(new Intent(this, LoginActivity.class));
-        });
+        textViewLogin.setOnClickListener(view -> startActivity(new Intent(this, LoginActivity.class)));
     }
 
     private void setError(EditText editText, TextView textView) {

@@ -44,4 +44,17 @@
     <string name="remove">Remove</string>
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
+    <string name="_21_21_12_06_2024">21:21 12.06.2024.</string>
+    <string name="description">Description...</string>
+    <string name="show_comments">Show comments</string>
+    <string name="post">Post</string>
+    <string name="write_your_comment">Write your comment...</string>
+    <string name="comment">Comment</string>
+    <string name="hide_comments">Hide comments</string>
+    <string name="what_s_on_your_mind">What\'s on your mind?</string>
+    <string name="create_post">Create post</string>
+    <string name="add_image">Add image</string>
+    <string name="selected_image">Selected image</string>
+    <string name="search_for_users">Search for users...</string>
+    <string name="search">Search</string>
 </resources>

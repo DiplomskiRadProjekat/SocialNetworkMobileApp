@@ -34,8 +34,6 @@ public class FriendsFragment extends Fragment {
 
     private String token;
 
-    private Long myId;
-
     private final boolean myProfile;
 
     public FriendsFragment(Long userId, boolean myProfile) {
@@ -53,7 +51,6 @@ public class FriendsFragment extends Fragment {
 
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("preferences", Context.MODE_PRIVATE);
         token = sharedPreferences.getString("pref_token", "");
-        myId = sharedPreferences.getLong("pref_id", 0);
 
         getAllFriends();
         recyclerViewFriends.setAdapter(friendsAdapter);
@@ -72,7 +69,7 @@ public class FriendsFragment extends Fragment {
                     FriendsAdapter adapter = new FriendsAdapter(friends, getContext(), token, userId, myProfile);
                     recyclerViewFriends.setAdapter(adapter);
                 } else {
-                    Log.e("API Error", "Failed to fetch accommodations: " + response.message());
+                    Log.e("API Error", "Failed to fetch friends: " + response.message());
                 }
             }
 

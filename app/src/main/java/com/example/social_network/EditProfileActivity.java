@@ -46,8 +46,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private String token;
 
-    private Long userId;
-
     private Long myId;
 
     private BottomNavigationView bottomNavigationView;
@@ -74,11 +72,6 @@ public class EditProfileActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         token = sharedPreferences.getString("pref_token", "");
         myId = sharedPreferences.getLong("pref_id", 0);
-
-        Intent intent = getIntent();
-        if (intent != null) {
-            userId = intent.getLongExtra("userId", 0L);
-        }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.nav_settings);
@@ -148,6 +141,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         } else {
                             if (response.code() == 400) {
                                 try {
+                                    assert response.errorBody() != null;
                                     JSONObject errorBody = new JSONObject(response.errorBody().string());
                                     Map<String, String> errors = new HashMap<>();
 
@@ -192,16 +186,14 @@ public class EditProfileActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<UserDTO> call, Throwable t) {
+                    public void onFailure(@NonNull Call<UserDTO> call, @NonNull Throwable t) {
                         Log.d("Fail", Objects.requireNonNull(t.getMessage()));
                     }
                 });
             }
         });
 
-        textViewChangePassword.setOnClickListener(view -> {
-            showPasswordEditDialog();
-        });
+        textViewChangePassword.setOnClickListener(view -> showPasswordEditDialog());
     }
 
     private void showPasswordEditDialog() {
@@ -278,6 +270,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         } else {
                             if (response.code() == 400) {
                                 try {
+                                    assert response.errorBody() != null;
                                     JSONObject errorBody = new JSONObject(response.errorBody().string());
                                     Map<String, String> errors = new HashMap<>();
 
@@ -364,8 +357,7 @@ public class EditProfileActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                //TODO: dodaj home
-                // startActivity(new Intent(EditProfileActivity.this, HomeActivity.class));
+                startActivity(new Intent(EditProfileActivity.this, HomeActivity.class));
                 return true;
             } else if (itemId == R.id.nav_friend_requests) {
                 Intent intent = new Intent(EditProfileActivity.this, FriendRequestsActivity.class);

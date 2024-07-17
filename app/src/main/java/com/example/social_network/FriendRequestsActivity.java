@@ -10,7 +10,6 @@ import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.social_network.fragments.FriendRequestsFragment;
-import com.example.social_network.fragments.FriendsFragment;
 import com.example.social_network.services.ServiceUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -51,7 +49,6 @@ public class FriendRequestsActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         token = sharedPreferences.getString("pref_token", "");
         myId = sharedPreferences.getLong("pref_id", 0);
-
 
         Intent intent = getIntent();
         if (intent != null) {
