@@ -17,10 +17,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.social_network.dtos.FriendRequestDTO;
 import com.example.social_network.dtos.FriendRequestStatus;
 import com.example.social_network.dtos.UserDTO;
+import com.example.social_network.fragments.PostsFragment;
 import com.example.social_network.services.ServiceUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -32,7 +34,7 @@ import retrofit2.Response;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private ImageView profileImage, buttonRemoveFriend;
+    private ImageView buttonRemoveFriend;
 
     private TextView textViewUsername, textViewName, textViewPosts, textViewFriends;
 
@@ -56,8 +58,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_profile);
 
-        profileImage = findViewById(R.id.profile_image);
-
         buttonRemoveFriend = findViewById(R.id.trash_icon);
         buttonAddFriend = findViewById(R.id.send_friend_request_button);
 
@@ -76,6 +76,13 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null) {
             userId = intent.getLongExtra("userId", 0L);
+        }
+
+        if (savedInstanceState == null) {
+            PostsFragment fragment = new PostsFragment(false, myId, userId);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragmentContainer, fragment);
+            transaction.commit();
         }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -145,8 +152,7 @@ public class ProfileActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                //TODO: dodaj home
-                // startActivity(new Intent(ProfileActivity.this, HomeActivity.class));
+                startActivity(new Intent(ProfileActivity.this, HomeActivity.class));
                 return true;
             } else if (itemId == R.id.nav_friend_requests) {
                 Intent intent = new Intent(ProfileActivity.this, FriendRequestsActivity.class);

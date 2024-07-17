@@ -130,9 +130,7 @@ public class LoginActivity extends AppCompatActivity {
                                 setPreferences(id, username, tokenDTO);
                                 setTokenPreference(tokenDTO.getToken(), tokenDTO.getRefreshToken());
 
-                                // TODO: change to home screen
-                                Intent intent = new Intent(LoginActivity.this, ProfileActivity.class);
-                                intent.putExtra("userId", id);
+                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                 startActivity(intent);
 
                             } else {
@@ -155,9 +153,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        textViewRegister.setOnClickListener(view -> {
-            startActivity(new Intent(this, RegistrationActivity.class));
-        });
+        textViewRegister.setOnClickListener(view -> startActivity(new Intent(this, RegistrationActivity.class)));
     }
 
     private void setError(EditText editText, TextView textView) {

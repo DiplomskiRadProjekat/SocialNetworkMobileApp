@@ -69,6 +69,7 @@ public class FriendRequestsFragment extends Fragment {
                 if (response.isSuccessful()) {
                     List<FriendRequestDTO> friendRequests = response.body();
                     List<FriendRequestDTO> myFriendRequests = new ArrayList<>();
+                    assert friendRequests != null;
                     for (FriendRequestDTO fr : friendRequests) {
                         if (fr.getToUserId().equals(myId)) {
                             myFriendRequests.add(fr);
@@ -77,7 +78,7 @@ public class FriendRequestsFragment extends Fragment {
                     FriendRequestsAdapter adapter = new FriendRequestsAdapter(myFriendRequests, getContext(), token);
                     recyclerViewFriendRequests.setAdapter(adapter);
                 } else {
-                    Log.e("API Error", "Failed to fetch accommodations: " + response.message());
+                    Log.e("API Error", "Failed to fetch friend requests: " + response.message());
                 }
             }
 

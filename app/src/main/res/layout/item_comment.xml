@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/profile"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:background="@color/secondaryColor"
+    android:padding="10dp" >
+
+    <ImageView
+        android:id="@+id/profile_image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_profile"
+        android:contentDescription="@string/profile_image"
+        android:layout_gravity="top"
+        android:layout_marginEnd="10dp"
+        app:tint="@color/onSecondaryColor" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/username"
+                android:textColor="@color/onSecondaryColor"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/delete_comment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/trash_icon"
+                android:src="@drawable/ic_trash"
+                android:layout_gravity="end"
+                android:visibility="visible"
+                app:tint="@color/onSecondaryColor" />
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/comment"
+            android:textColor="@color/primaryColorVariant"
+            android:background="#FFFFFF"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:padding="4dp" />
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_21_21_12_06_2024"
+            android:textColor="@color/secondaryColorVariant"
+            android:textSize="12sp"
+            android:layout_gravity="end" />
+    </LinearLayout>
+
+</LinearLayout>
