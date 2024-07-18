@@ -66,4 +66,7 @@ public interface IUserService {
     @GET(ServiceUtils.user)
     Call<List<UserDTO>> searchUsers(@Query("search") String search);
 
+    @PUT(ServiceUtils.user + "/{id}/uid")
+    Call<Void> setUid(@Path("id") Long id, @Query("uid") String uid);
+
 }

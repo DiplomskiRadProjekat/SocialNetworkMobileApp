@@ -84,8 +84,7 @@ public class FriendsActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_chat) {
-                //TODO: dodaj chat
-                // startActivity(new Intent(EditProfileActivity.this, ChatActivity.class));
+                startActivity(new Intent(FriendsActivity.this, InboxActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
                 Intent intent = new Intent(FriendsActivity.this, ProfileActivity.class);

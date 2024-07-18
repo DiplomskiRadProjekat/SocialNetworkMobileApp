@@ -20,8 +20,14 @@ import androidx.core.content.ContextCompat;
 
 import com.example.social_network.dtos.NewUserDTO;
 import com.example.social_network.dtos.UserDTO;
+import com.example.social_network.dtos.UserModel;
 import com.example.social_network.services.IAuthService;
 import com.example.social_network.services.ServiceUtils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +35,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,6 +53,8 @@ public class RegistrationActivity extends AppCompatActivity {
     private boolean isPasswordVisible = false;
 
     private String token;
+
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +85,8 @@ public class RegistrationActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         token = sharedPreferences.getString("pref_token", "");
+
+        databaseReference = FirebaseDatabase.getInstance("https://socialnetwork-220d1-default-rtdb.europe-west1.firebasedatabase.app").getReference("Users");
     }
 
     @Override
@@ -156,8 +167,7 @@ public class RegistrationActivity extends AppCompatActivity {
                             if (userDTO != null) {
                                 Log.i("Success", "New user: " + userDTO.getUsername());
                                 Toast.makeText(RegistrationActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
-
-                                startActivity(new Intent(RegistrationActivity.this, LoginActivity.class));
+                                signUp(email, password, username, userDTO.getId());
                             } else {
                                 Log.e("Error", "Registration failed.");
                                 Toast.makeText(RegistrationActivity.this, "Registration failed. Invalid server response.", Toast.LENGTH_SHORT).show();
@@ -241,5 +251,40 @@ public class RegistrationActivity extends AppCompatActivity {
         editText.setBackgroundResource(R.drawable.edit_text);
         textView.setTextColor(ContextCompat.getColor(this, R.color.primaryDarkColor));
     }
-    
+
+    private void signUp(String email, String password, String username, Long id) {
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                .addOnSuccessListener(authResult -> {
+                    UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
+                    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                    assert firebaseUser != null;
+                    firebaseUser.updateProfile(userProfileChangeRequest);
+
+                    UserModel userModel = new UserModel(FirebaseAuth.getInstance().getUid(), username, email, password);
+                    databaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).setValue(userModel);
+
+                    setUid(id, FirebaseAuth.getInstance().getUid());
+                })
+                .addOnFailureListener(e -> Toast.makeText(RegistrationActivity.this, "Registration failed!", Toast.LENGTH_SHORT).show());
+    }
+
+    private void setUid(Long id, String uid) {
+        Call<Void> call = ServiceUtils.userService(token).setUid(id, uid);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.i("Success", response.message());
+                    startActivity(new Intent(RegistrationActivity.this, LoginActivity.class));
+                } else {
+                    onFailure(call, new Throwable("API call failed with status code: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, Throwable t) {
+                Log.d("Fail", Objects.requireNonNull(t.getMessage()));
+            }
+        });
+    }
 }

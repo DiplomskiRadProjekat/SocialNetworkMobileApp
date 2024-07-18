@@ -18,10 +18,12 @@ public class UserDTO {
 
     private int friendsCount;
 
+    private String uid;
+
     public UserDTO() {
     }
 
-    public UserDTO(Long id, String email, String firstName, String lastName, String username, String phoneNumber, int postsCount, int friendsCount) {
+    public UserDTO(Long id, String email, String firstName, String lastName, String username, String phoneNumber, int postsCount, int friendsCount, String uid) {
         this.id = id;
         this.email = email;
         this.firstName = firstName;
@@ -30,6 +32,7 @@ public class UserDTO {
         this.phoneNumber = phoneNumber;
         this.postsCount = postsCount;
         this.friendsCount = friendsCount;
+        this.uid = uid;
     }
 
     public Long getId() {
@@ -94,6 +97,14 @@ public class UserDTO {
 
     public void setFriendsCount(int friendsCount) {
         this.friendsCount = friendsCount;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
 }

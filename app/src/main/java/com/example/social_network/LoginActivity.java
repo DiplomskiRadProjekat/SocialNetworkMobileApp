@@ -21,8 +21,13 @@ import com.auth0.android.jwt.JWT;
 import com.example.social_network.dtos.AuthenticationRequestDTO;
 import com.example.social_network.dtos.AuthenticationResponseDTO;
 import com.example.social_network.dtos.Token;
+import com.example.social_network.dtos.UserDTO;
 import com.example.social_network.services.IAuthService;
 import com.example.social_network.services.ServiceUtils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -130,9 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                                 setPreferences(id, username, tokenDTO);
                                 setTokenPreference(tokenDTO.getToken(), tokenDTO.getRefreshToken());
 
-                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                                startActivity(intent);
-
+                                loadUser(id, password, tokenDTO.getToken());
                             } else {
                                 Log.e("Error", "Login failed.");
                                 Toast.makeText(LoginActivity.this, "Login failed. Invalid server response.", Toast.LENGTH_SHORT).show();
@@ -200,6 +203,40 @@ public class LoginActivity extends AppCompatActivity {
     private void setPreferences(Long id, String username, AuthenticationResponseDTO loginResponse){
         setSharedPreferences(id, username);
         setTokenPreference(loginResponse.getToken(), loginResponse.getRefreshToken());
+    }
+
+    private void loadUser(Long id, String password, String accessToken) {
+        Call<UserDTO> call = ServiceUtils.userService(accessToken).get(id);
+        call.enqueue(new Callback<UserDTO>() {
+            @Override
+            public void onResponse(@NonNull Call<UserDTO> call, @NonNull Response<UserDTO> response) {
+                if (response.isSuccessful()) {
+                    Log.i("Success", response.message());
+                    UserDTO userDTO = response.body();
+                    if (userDTO != null) {
+                        FirebaseAuth.getInstance().signInWithEmailAndPassword(userDTO.getEmail(), password)
+                                .addOnSuccessListener(authResult -> {
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                    startActivity(intent);
+                                })
+                                .addOnFailureListener(e -> {
+                                    if (e instanceof FirebaseAuthInvalidUserException) {
+                                        Toast.makeText(LoginActivity.this, "User doesn't exist!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(LoginActivity.this, "Authentication failed!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
+                } else {
+                    onFailure(call, new Throwable("API call failed with status code: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<UserDTO> call, Throwable t) {
+                Log.d("Fail", Objects.requireNonNull(t.getMessage()));
+            }
+        });
     }
 
 }

@@ -57,4 +57,10 @@
     <string name="selected_image">Selected image</string>
     <string name="search_for_users">Search for users...</string>
     <string name="search">Search</string>
+    <string name="messages">Messages</string>
+    <string name="friend">Friend</string>
+    <string name="send_button">Send button</string>
+    <string name="write_message">Write message...</string>
+    <string name="hi">Hi!</string>
+    <string name="hello">Hello</string>
 </resources>
