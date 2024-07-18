@@ -188,6 +188,7 @@ public class ProfileActivity extends AppCompatActivity {
                 linearLayoutFriends.setVisibility(View.GONE);
                 buttonAddFriend.setVisibility(View.VISIBLE);
             }
+            bottomNavigationView.getMenu().setGroupCheckable(0, false, true);
         } else {
             bottomNavigationView.setSelectedItemId(R.id.nav_profile);
         }
