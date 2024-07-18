@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.social_network.fragments.FriendRequestsFragment;
+import com.example.social_network.fragments.InboxFragment;
 import com.example.social_network.services.ServiceUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -26,11 +26,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FriendRequestsActivity extends AppCompatActivity {
+public class InboxActivity extends AppCompatActivity {
 
     private String token;
-
-    private Long userId;
 
     private Long myId;
 
@@ -44,26 +42,21 @@ public class FriendRequestsActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
-        setContentView(R.layout.activity_friend_requests);
+        setContentView(R.layout.activity_inbox);
 
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         token = sharedPreferences.getString("pref_token", "");
         myId = sharedPreferences.getLong("pref_id", 0);
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            userId = intent.getLongExtra("userId", 0L);
-        }
-
         if (savedInstanceState == null) {
-            FriendRequestsFragment fragment = new FriendRequestsFragment(userId);
+            InboxFragment fragment = new InboxFragment(myId);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragmentContainer, fragment);
             transaction.commit();
         }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.nav_friend_requests);
+        bottomNavigationView.setSelectedItemId(R.id.nav_chat);
         setupBottomNavigationListener();
     }
 
@@ -71,15 +64,17 @@ public class FriendRequestsActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                 startActivity(new Intent(FriendRequestsActivity.this, HomeActivity.class));
+                startActivity(new Intent(InboxActivity.this, HomeActivity.class));
                 return true;
             } else if (itemId == R.id.nav_friend_requests) {
+                Intent intent = new Intent(InboxActivity.this, FriendRequestsActivity.class);
+                intent.putExtra("userId", myId);
+                startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_chat) {
-                startActivity(new Intent(FriendRequestsActivity.this, InboxActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                Intent intent = new Intent(FriendRequestsActivity.this, ProfileActivity.class);
+                Intent intent = new Intent(InboxActivity.this, ProfileActivity.class);
                 intent.putExtra("userId", myId);
                 startActivity(intent);
                 return true;
@@ -100,7 +95,7 @@ public class FriendRequestsActivity extends AppCompatActivity {
         popup.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.action_edit_profile) {
-                Intent intent = new Intent(FriendRequestsActivity.this, EditProfileActivity.class);
+                Intent intent = new Intent(InboxActivity.this, EditProfileActivity.class);
                 intent.putExtra("userId", myId);
                 startActivity(intent);
                 return true;
@@ -109,7 +104,7 @@ public class FriendRequestsActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.action_logout) {
                 deletePreferences();
-                startActivity(new Intent(FriendRequestsActivity.this, LoginActivity.class));
+                startActivity(new Intent(InboxActivity.this, LoginActivity.class));
                 return true;
             }
             return false;
@@ -144,8 +139,8 @@ public class FriendRequestsActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     Log.i("Success", response.message());
                     deletePreferences();
-                    startActivity(new Intent(FriendRequestsActivity.this, LoginActivity.class));
-                    Toast.makeText(FriendRequestsActivity.this, "Successfully deleted profile!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(InboxActivity.this, LoginActivity.class));
+                    Toast.makeText(InboxActivity.this, "Successfully deleted profile!", Toast.LENGTH_SHORT).show();
                 } else {
                     onFailure(call, new Throwable("API call failed with status code: " + response.code()));
                 }

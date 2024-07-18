@@ -365,8 +365,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_chat) {
-                //TODO: dodaj chat
-                // startActivity(new Intent(EditProfileActivity.this, ChatActivity.class));
+                startActivity(new Intent(EditProfileActivity.this, InboxActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
                 Intent intent = new Intent(EditProfileActivity.this, ProfileActivity.class);

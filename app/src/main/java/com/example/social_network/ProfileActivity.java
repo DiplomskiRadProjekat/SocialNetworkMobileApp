@@ -160,8 +160,7 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_chat) {
-                //TODO: dodaj chat
-                // startActivity(new Intent(ProfileActivity.this, ChatActivity.class));
+                startActivity(new Intent(ProfileActivity.this, InboxActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
                 return true;
