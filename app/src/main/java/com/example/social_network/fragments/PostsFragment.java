@@ -50,6 +50,8 @@ public class PostsFragment extends Fragment {
 
         recyclerViewPosts = view.findViewById(R.id.recyclerView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
         recyclerViewPosts.setLayoutManager(layoutManager);
 
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("preferences", Context.MODE_PRIVATE);
