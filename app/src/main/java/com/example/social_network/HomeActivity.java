@@ -14,6 +14,7 @@ import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,7 +50,9 @@ public class HomeActivity extends AppCompatActivity {
 
     private TextView textViewAddImage, textViewSelectedImage;
 
-    private Button buttonCreatePost, buttonSearch;
+    private Button buttonCreatePost;
+
+    private ImageButton buttonSearch;
 
     private String token;
 
