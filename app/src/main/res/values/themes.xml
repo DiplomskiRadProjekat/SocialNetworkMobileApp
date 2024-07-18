@@ -1,0 +1,17 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.SocialNetwork" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryVariant">@color/primaryColorVariant</item>
+        <item name="colorOnPrimary">@color/onPrimaryColor</item>
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorSecondaryVariant">@color/secondaryColorVariant</item>
+        <item name="colorOnSecondary">@color/onSecondaryColor</item>
+        <item name="android:statusBarColor">@color/primaryDarkColor</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
+    </style>
+
+    <style name="CustomPopupMenu" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:popupBackground">@color/secondaryColor</item>
+    </style>
+</resources>
