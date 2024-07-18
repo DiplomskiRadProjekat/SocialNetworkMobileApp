@@ -47,6 +47,8 @@ public class CommentsFragment extends Fragment {
 
         recyclerViewComments = view.findViewById(R.id.recyclerView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
         recyclerViewComments.setLayoutManager(layoutManager);
 
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("preferences", Context.MODE_PRIVATE);

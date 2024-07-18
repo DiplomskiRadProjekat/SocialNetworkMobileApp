@@ -28,16 +28,16 @@
             android:padding="10dp"
             android:layout_marginEnd="10dp"
             android:inputType="text"
-            android:drawableEnd="@drawable/ic_search"
             android:background="@drawable/edit_text"
             android:textColor="@color/primaryDarkColor" />
 
-        <Button
+        <ImageButton
             android:id="@+id/searchButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="@string/search" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_search"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/search" />
 
     </LinearLayout>
 
