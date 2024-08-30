@@ -34,7 +34,7 @@ import retrofit2.Response;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private ImageView buttonRemoveFriend;
+    private ImageView buttonRemoveFriend, buttonMessageFriend;
 
     private TextView textViewUsername, textViewName, textViewPosts, textViewFriends;
 
@@ -48,6 +48,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
 
+    private String uid, username;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +61,7 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         buttonRemoveFriend = findViewById(R.id.trash_icon);
+        buttonMessageFriend = findViewById(R.id.message_icon);
         buttonAddFriend = findViewById(R.id.send_friend_request_button);
 
         textViewUsername = findViewById(R.id.username);
@@ -97,6 +100,13 @@ public class ProfileActivity extends AppCompatActivity {
         super.onResume();
 
         loadUser();
+
+        buttonMessageFriend.setOnClickListener(view -> {
+            Intent intent = new Intent(ProfileActivity.this, ChatActivity.class);
+            intent.putExtra("friendId", uid);
+            intent.putExtra("friendUsername", username);
+            startActivity(intent);
+        });
 
         buttonAddFriend.setOnClickListener(view -> {
             Call<FriendRequestDTO> callAddFriend = ServiceUtils.friendRequestService(token).create(myId, userId);
@@ -233,6 +243,9 @@ public class ProfileActivity extends AppCompatActivity {
                         textViewName.setText(String.format("%s %s", userDTO.getFirstName(), userDTO.getLastName()));
                         textViewFriends.setText(String.valueOf(userDTO.getFriendsCount()));
                         textViewPosts.setText(String.valueOf(userDTO.getPostsCount()));
+
+                        uid = userDTO.getUid();
+                        username = userDTO.getUsername();
                     }
                 } else {
                     onFailure(call, new Throwable("API call failed with status code: " + response.code()));
