@@ -16,15 +16,25 @@
         android:gravity="center_vertical"
         android:layout_margin="20dp" >
 
-        <ImageView
-            android:id="@+id/profile_image"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:contentDescription="@string/profile_image"
-            android:src="@drawable/ic_profile"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/ic_profile"
-            app:tint="@color/primaryColor" />
+            app:cardCornerRadius="25dp"
+            app:strokeColor="@color/primaryColor"
+            app:strokeWidth="3dp"
+            android:layout_marginEnd="8dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/profile_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/profile_image"
+                android:src="@drawable/ic_profile"
+                android:tint="@color/primaryColor"
+                android:background="@color/secondaryColor"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance_App_Circular" />
+
+        </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
             android:layout_width="0dp"

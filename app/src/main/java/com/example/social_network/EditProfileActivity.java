@@ -4,21 +4,33 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 
 import com.example.social_network.dtos.PasswordChangeDTO;
+import com.example.social_network.dtos.PostDTO;
 import com.example.social_network.dtos.UpdateUserDTO;
 import com.example.social_network.dtos.UserDTO;
 import com.example.social_network.services.ServiceUtils;
@@ -27,16 +39,24 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class EditProfileActivity extends AppCompatActivity {
+
+    private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 100;
 
     private EditText editTextFirstName, editTextLastName, editTextEmail, editTextUsername, editTextCurrentPassword, editTextNewPassword, editTextConfirmPassword;
 
@@ -44,11 +64,28 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private TextView textViewChangePassword, textViewNewPassword, textViewCurrentPassword, textViewConfirmPassword;
 
+    private ImageView imageViewProfilePicture, imageViewCamera;
+
     private String token;
 
     private Long myId;
 
     private BottomNavigationView bottomNavigationView;
+
+    private Uri selectedImageUri;
+
+    private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    assert result.getData() != null;
+                    selectedImageUri = result.getData().getData();
+
+                    String fileName = getFileName(selectedImageUri);
+
+                    uploadProfilePicture();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +105,9 @@ public class EditProfileActivity extends AppCompatActivity {
         buttonSaveChanges = findViewById(R.id.saveChanges);
 
         textViewChangePassword = findViewById(R.id.changePassword);
+
+        imageViewProfilePicture = findViewById(R.id.profile_image);
+        imageViewCamera = findViewById(R.id.camera);
 
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         token = sharedPreferences.getString("pref_token", "");
@@ -194,6 +234,17 @@ public class EditProfileActivity extends AppCompatActivity {
         });
 
         textViewChangePassword.setOnClickListener(view -> showPasswordEditDialog());
+
+        imageViewCamera.setOnClickListener(view -> {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_CODE_READ_EXTERNAL_STORAGE);
+            } else {
+                pickImageFromGallery();
+            }
+        });
     }
 
     private void showPasswordEditDialog() {
@@ -340,6 +391,8 @@ public class EditProfileActivity extends AppCompatActivity {
                         editTextLastName.setText(userDTO.getLastName());
                         editTextUsername.setText(userDTO.getUsername());
                         editTextEmail.setText(userDTO.getEmail());
+
+                        loadProfilePicture(userDTO.getId());
                     }
                 } else {
                     onFailure(call, new Throwable("API call failed with status code: " + response.code()));
@@ -348,6 +401,35 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<UserDTO> call, Throwable t) {
+                Log.d("Fail", Objects.requireNonNull(t.getMessage()));
+            }
+        });
+    }
+
+    private void loadProfilePicture(Long id) {
+        Call<ResponseBody> call = ServiceUtils.userService(token).downloadProfilePicture(id);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Log.i("Success", response.message());
+                    assert response.body() != null;
+                    InputStream inputStream = response.body().byteStream();
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    if (bitmap != null) {
+                        ImageViewCompat.setImageTintList(imageViewProfilePicture, null);
+                        imageViewProfilePicture.setImageBitmap(bitmap);
+                    } else {
+                        Log.e("LoadImage", "Failed to decode bitmap from stream");
+                    }
+
+                } else {
+                    onFailure(call, new Throwable("API call failed with status code: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, Throwable t) {
                 Log.d("Fail", Objects.requireNonNull(t.getMessage()));
             }
         });
@@ -466,6 +548,91 @@ public class EditProfileActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor spEditor = sharedPreferences.edit();
         spEditor.clear().apply();
+    }
+
+    private String getFileName(Uri uri) {
+        String fileName = null;
+        Cursor cursor = null;
+        try {
+            String[] projection = { MediaStore.Images.Media.DISPLAY_NAME };
+            cursor = getContentResolver().query(uri, projection, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
+                fileName = cursor.getString(columnIndex);
+            } else {
+                Log.e("getFileName", "Cursor is empty or could not move to first");
+            }
+        } catch (IllegalArgumentException e) {
+            Log.e("getFileName", "IllegalArgumentException: " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return fileName;
+    }
+
+    private void pickImageFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickImageLauncher.launch(intent);
+    }
+
+    private String getPathFromUri(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            String path = cursor.getString(columnIndex);
+            cursor.close();
+            return path;
+        }
+        return null;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                pickImageFromGallery();
+            } else {
+                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void uploadProfilePicture() {
+        MultipartBody.Part filePart = null;
+        if (selectedImageUri != null) {
+            String filePath = getPathFromUri(selectedImageUri);
+            if (filePath == null) {
+                Toast.makeText(this, "Unable to get the file path", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            File file = new File(filePath);
+            RequestBody fileBody = RequestBody.create(MediaType.parse("image/*"), file);
+            filePart = MultipartBody.Part.createFormData("file", file.getName(), fileBody);
+        }
+
+        Call<Void> call = ServiceUtils.userService(token).setProfilePicture(myId, filePart);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(EditProfileActivity.this, "Set new profile picture successfully!", Toast.LENGTH_SHORT).show();
+                    loadProfilePicture(myId);
+                } else {
+                    Toast.makeText(EditProfileActivity.this, "Failed to set profile picture!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                Toast.makeText(EditProfileActivity.this, "Failed to set profile picture: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }

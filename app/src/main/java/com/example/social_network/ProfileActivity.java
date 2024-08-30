@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.social_network.dtos.FriendRequestDTO;
@@ -26,8 +29,10 @@ import com.example.social_network.fragments.PostsFragment;
 import com.example.social_network.services.ServiceUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.InputStream;
 import java.util.Objects;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -39,6 +44,8 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView textViewUsername, textViewName, textViewPosts, textViewFriends;
 
     private Button buttonAddFriend;
+
+    private ImageView imageViewProfilePicture;
 
     private LinearLayout linearLayoutResponse, linearLayoutFriends;
 
@@ -68,6 +75,8 @@ public class ProfileActivity extends AppCompatActivity {
         textViewName = findViewById(R.id.name);
         textViewFriends = findViewById(R.id.friends);
         textViewPosts = findViewById(R.id.posts);
+
+        imageViewProfilePicture = findViewById(R.id.profile_image);
 
         linearLayoutResponse = findViewById(R.id.waiting_for_response);
         linearLayoutFriends = findViewById(R.id.friends_layout);
@@ -246,6 +255,8 @@ public class ProfileActivity extends AppCompatActivity {
 
                         uid = userDTO.getUid();
                         username = userDTO.getUsername();
+
+                        loadProfilePicture(userDTO.getId());
                     }
                 } else {
                     onFailure(call, new Throwable("API call failed with status code: " + response.code()));
@@ -332,6 +343,35 @@ public class ProfileActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor spEditor = sharedPreferences.edit();
         spEditor.clear().apply();
+    }
+
+    private void loadProfilePicture(Long id) {
+        Call<ResponseBody> call = ServiceUtils.userService(token).downloadProfilePicture(id);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Log.i("Success", response.message());
+                    assert response.body() != null;
+                    InputStream inputStream = response.body().byteStream();
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    if (bitmap != null) {
+                        ImageViewCompat.setImageTintList(imageViewProfilePicture, null);
+                        imageViewProfilePicture.setImageBitmap(bitmap);
+                    } else {
+                        Log.e("LoadImage", "Failed to decode bitmap from stream");
+                    }
+
+                } else {
+                    onFailure(call, new Throwable("API call failed with status code: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, Throwable t) {
+                Log.d("Fail", Objects.requireNonNull(t.getMessage()));
+            }
+        });
     }
 
 }

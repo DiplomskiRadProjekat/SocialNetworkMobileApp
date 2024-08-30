@@ -15,7 +15,58 @@
         android:textSize="24sp"
         android:textColor="@color/primaryColor"
         android:textStyle="bold"
-        android:layout_margin="30dp" />
+        android:layout_marginTop="30dp" />
+
+<!--    <ImageView-->
+<!--        android:id="@+id/profile_image"-->
+<!--        android:layout_width="150dp"-->
+<!--        android:layout_height="150dp"-->
+<!--        android:contentDescription="@string/profile_image"-->
+<!--        android:src="@drawable/ic_profile"-->
+<!--        android:background="@drawable/circular_border"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:layout_marginBottom="10dp"-->
+<!--         />-->
+<!--    <com.google.android.material.imageview.ShapeableImageView-->
+<!--        android:id="@+id/profile_image"-->
+<!--        android:layout_width="150dp"-->
+<!--        android:layout_height="150dp"-->
+<!--        android:contentDescription="@string/profile_image"-->
+<!--        android:src="@drawable/ic_profile"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:layout_marginBottom="10dp"-->
+<!--        app:shapeAppearanceOverlay="@style/ShapeAppearance_App_Circular"-->
+<!--        />-->
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:cardCornerRadius="75dp"
+        app:strokeColor="@color/primaryColor"
+        app:strokeWidth="4dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profile_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/profile_image"
+        android:src="@drawable/ic_profile"
+        android:tint="@color/primaryColor"
+        android:background="@color/backgroundColor"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance_App_Circular" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <ImageView
+        android:id="@+id/camera"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:contentDescription="@string/camera_icon"
+        android:src="@drawable/ic_camera"
+        android:layout_marginBottom="5dp"
+        app:tint="@color/onSecondaryColor" />
 
     <EditText
         android:id="@+id/firstName"
@@ -73,7 +124,6 @@
         android:padding="12dp"
         android:background="@drawable/edit_text"
         android:textColor="@color/primaryDarkColor"
-        android:layout_marginBottom="20dp"
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp" />
 

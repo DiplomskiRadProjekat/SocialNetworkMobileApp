@@ -63,7 +63,7 @@ public class InboxFragment extends Fragment {
             public void onResponse(@NonNull Call<List<UserDTO>> call, @NonNull Response<List<UserDTO>> response) {
                 if (response.isSuccessful()) {
                     List<UserDTO> friends = response.body();
-                    InboxAdapter adapter = new InboxAdapter(friends, getContext());
+                    InboxAdapter adapter = new InboxAdapter(friends, getContext(), token);
                     recyclerViewFriends.setAdapter(adapter);
                 } else {
                     Log.e("API Error", "Failed to fetch friends: " + response.message());

@@ -59,7 +59,7 @@ public class SearchResultsFragment extends Fragment {
     private void searchUsers() {
         if (query.isEmpty()) {
             List<UserDTO> usersEmpty = new ArrayList<>();
-            SearchResultsAdapter adapter = new SearchResultsAdapter(usersEmpty, getContext());
+            SearchResultsAdapter adapter = new SearchResultsAdapter(usersEmpty, getContext(), token);
             recyclerViewSearchResults.setAdapter(adapter);
         } else {
             Call<List<UserDTO>> call = ServiceUtils.userService(token).searchUsers(query);
@@ -69,7 +69,7 @@ public class SearchResultsFragment extends Fragment {
                 public void onResponse(@NonNull Call<List<UserDTO>> call, @NonNull Response<List<UserDTO>> response) {
                     if (response.isSuccessful()) {
                         List<UserDTO> users = response.body();
-                        SearchResultsAdapter adapter = new SearchResultsAdapter(users, getContext());
+                        SearchResultsAdapter adapter = new SearchResultsAdapter(users, getContext(), token);
                         recyclerViewSearchResults.setAdapter(adapter);
                     } else {
                         Log.e("API Error", "Failed to fetch users: " + response.message());

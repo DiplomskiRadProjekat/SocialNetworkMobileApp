@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -70,6 +71,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         PostDTO item = posts.get(position);
+
+        loadProfilePicture(item.getUserId(), holder.imageViewProfilePicture);
 
         loadUsername(item.getUserId(), holder.textViewUsername);
 
@@ -178,7 +181,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
         TextView textViewUsername, textViewTimestamp, textViewPostDescription, textViewShowComments, textViewHideComments;
 
-        ImageView imageViewDeletePost, imageViewPostImage;
+        ImageView imageViewDeletePost, imageViewPostImage, imageViewProfilePicture;
 
         EditText editTextComment;
 
@@ -198,6 +201,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             recyclerView = itemView.findViewById(R.id.recyclerView);
             textViewShowComments = itemView.findViewById(R.id.show_comments);
             textViewHideComments = itemView.findViewById(R.id.hide_comments);
+            imageViewProfilePicture = itemView.findViewById(R.id.profile_image);
         }
     }
 
@@ -293,6 +297,35 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
     private void resetError(EditText editText) {
         editText.setBackgroundResource(R.drawable.edit_text);
+    }
+
+    private void loadProfilePicture(Long id, ImageView imageViewProfilePicture) {
+        Call<ResponseBody> call = ServiceUtils.userService(token).downloadProfilePicture(id);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Log.i("Success", response.message());
+                    assert response.body() != null;
+                    InputStream inputStream = response.body().byteStream();
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    if (bitmap != null) {
+                        ImageViewCompat.setImageTintList(imageViewProfilePicture, null);
+                        imageViewProfilePicture.setImageBitmap(bitmap);
+                    } else {
+                        Log.e("LoadImage", "Failed to decode bitmap from stream");
+                    }
+
+                } else {
+                    onFailure(call, new Throwable("API call failed with status code: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, Throwable t) {
+                Log.d("Fail", Objects.requireNonNull(t.getMessage()));
+            }
+        });
     }
 
 }

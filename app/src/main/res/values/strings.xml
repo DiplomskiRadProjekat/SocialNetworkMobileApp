@@ -64,4 +64,5 @@
     <string name="hi">Hi!</string>
     <string name="hello">Hello</string>
     <string name="message_icon">Message icon</string>
+    <string name="camera_icon">Camera icon</string>
 </resources>

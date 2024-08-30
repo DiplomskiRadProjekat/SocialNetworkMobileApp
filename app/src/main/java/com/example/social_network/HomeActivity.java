@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.FragmentTransaction;
 import com.example.social_network.dtos.PostDTO;
 import com.example.social_network.fragments.PostsFragment;
@@ -33,11 +37,13 @@ import com.example.social_network.services.ServiceUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Objects;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -53,6 +59,8 @@ public class HomeActivity extends AppCompatActivity {
     private Button buttonCreatePost;
 
     private ImageButton buttonSearch;
+
+    private ImageView imageViewProfilePicture;
 
     private String token;
 
@@ -91,6 +99,7 @@ public class HomeActivity extends AppCompatActivity {
         buttonCreatePost = findViewById(R.id.createPost);
         textViewSelectedImage = findViewById(R.id.selectedImage);
         buttonSearch = findViewById(R.id.searchButton);
+        imageViewProfilePicture = findViewById(R.id.profile_image);
 
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         token = sharedPreferences.getString("pref_token", "");
@@ -111,6 +120,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+        loadProfilePicture(myId);
 
         textViewAddImage.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -344,5 +355,35 @@ public class HomeActivity extends AppCompatActivity {
     private void resetError(EditText editText) {
         editText.setBackgroundResource(R.drawable.edit_text);
     }
+
+    private void loadProfilePicture(Long id) {
+        Call<ResponseBody> call = ServiceUtils.userService(token).downloadProfilePicture(id);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Log.i("Success", response.message());
+                    assert response.body() != null;
+                    InputStream inputStream = response.body().byteStream();
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    if (bitmap != null) {
+                        ImageViewCompat.setImageTintList(imageViewProfilePicture, null);
+                        imageViewProfilePicture.setImageBitmap(bitmap);
+                    } else {
+                        Log.e("LoadImage", "Failed to decode bitmap from stream");
+                    }
+
+                } else {
+                    onFailure(call, new Throwable("API call failed with status code: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, Throwable t) {
+                Log.d("Fail", Objects.requireNonNull(t.getMessage()));
+            }
+        });
+    }
+
 
 }

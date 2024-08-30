@@ -2,7 +2,6 @@ package com.example.social_network.services;
 
 import com.example.social_network.dtos.FriendRequestDTO;
 import com.example.social_network.dtos.FriendRequestStatus;
-import com.example.social_network.dtos.NewPostDTO;
 import com.example.social_network.dtos.PasswordChangeDTO;
 import com.example.social_network.dtos.PostDTO;
 import com.example.social_network.dtos.UpdateUserDTO;
@@ -12,6 +11,7 @@ import java.util.List;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -68,5 +68,12 @@ public interface IUserService {
 
     @PUT(ServiceUtils.user + "/{id}/uid")
     Call<Void> setUid(@Path("id") Long id, @Query("uid") String uid);
+
+    @Multipart
+    @PUT(ServiceUtils.user + "/{id}/profile-picture")
+    Call<Void> setProfilePicture(@Path("id") Long id, @Part MultipartBody.Part file);
+
+    @GET(ServiceUtils.user + "/{id}/profile-picture")
+    Call<ResponseBody> downloadProfilePicture(@Path("id") Long id);
 
 }
