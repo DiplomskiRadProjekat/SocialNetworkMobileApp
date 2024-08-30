@@ -10,14 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.social_network.R;
@@ -25,7 +23,6 @@ import com.example.social_network.dtos.CommentDTO;
 import com.example.social_network.dtos.NewCommentDTO;
 import com.example.social_network.dtos.PostDTO;
 import com.example.social_network.dtos.UserDTO;
-import com.example.social_network.fragments.CommentsFragment;
 import com.example.social_network.services.IPostService;
 import com.example.social_network.services.ServiceUtils;
 
@@ -65,13 +62,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
     @NonNull
     @Override
-    public PostsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
-        return new PostsAdapter.ViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(PostsAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         PostDTO item = posts.get(position);
 
         loadUsername(item.getUserId(), holder.textViewUsername);
@@ -83,19 +80,16 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
         holder.textViewShowComments.setOnClickListener(view -> {
             holder.textViewShowComments.setVisibility(View.GONE);
-            holder.frameLayoutFragment.setVisibility(View.VISIBLE);
+            holder.recyclerView.setVisibility(View.VISIBLE);
             holder.textViewHideComments.setVisibility(View.VISIBLE);
-            CommentsFragment fragment = new CommentsFragment(myId, item.getId());
-            FragmentTransaction transaction = ((FragmentActivity) context).getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, fragment);
-            transaction.commit();
         });
 
         holder.textViewHideComments.setOnClickListener(view -> {
             holder.textViewShowComments.setVisibility(View.VISIBLE);
-            holder.frameLayoutFragment.setVisibility(View.GONE);
+            holder.recyclerView.setVisibility(View.GONE);
             holder.textViewHideComments.setVisibility(View.GONE);
         });
+
 
         holder.imageViewDeletePost.setVisibility((home || !myId.equals(userId)) ? View.GONE : View.VISIBLE);
 
@@ -114,7 +108,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             boolean hasError = false;
 
             if (comment.isEmpty()) {
-                Log.e("Error", "Empty username");
+                Log.e("Error", "Empty comment");
                 setError(holder.editTextComment);
                 hasError = true;
             } else {
@@ -133,6 +127,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                             if (comment != null) {
                                 Toast.makeText(context, "Successfully created comment!", Toast.LENGTH_SHORT).show();
                                 holder.editTextComment.setText("");
+                                loadComments(item.getId(), holder.recyclerView);
                             }
                         }
                     }
@@ -142,6 +137,34 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                         Log.e("Error", "Creating comment failed.");
                     }
                 });
+            }
+        });
+
+        loadComments(item.getId(), holder.recyclerView);
+    }
+
+    private void loadComments(Long postId, RecyclerView recyclerView) {
+        Call<List<CommentDTO>> call = ServiceUtils.postService(token).getAllComments(postId);
+
+        call.enqueue(new Callback<List<CommentDTO>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<CommentDTO>> call, @NonNull Response<List<CommentDTO>> response) {
+                if (response.isSuccessful()) {
+                    List<CommentDTO> comments = response.body();
+                    if (comments != null) {
+                        CommentsAdapter adapter = new CommentsAdapter(comments, context, token, myId);
+                        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+                        layoutManager.setReverseLayout(true);
+                        layoutManager.setStackFromEnd(true);
+                        recyclerView.setLayoutManager(layoutManager);
+                        recyclerView.setAdapter(adapter);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<CommentDTO>> call, @NonNull Throwable t) {
+                Log.d("Error", "Failed to load comments: " + t.getMessage());
             }
         });
     }
@@ -161,19 +184,19 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
         Button buttonSubmitComment;
 
-        FrameLayout frameLayoutFragment;
+        RecyclerView recyclerView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             textViewUsername = itemView.findViewById(R.id.username);
             textViewTimestamp = itemView.findViewById(R.id.timestamp);
             textViewPostDescription = itemView.findViewById(R.id.post_description);
-            textViewShowComments = itemView.findViewById(R.id.show_comments);
             imageViewDeletePost = itemView.findViewById(R.id.delete_post);
             imageViewPostImage = itemView.findViewById(R.id.post_image);
             editTextComment = itemView.findViewById(R.id.comment_input);
             buttonSubmitComment = itemView.findViewById(R.id.submit_comment_button);
-            frameLayoutFragment = itemView.findViewById(R.id.fragment_container);
+            recyclerView = itemView.findViewById(R.id.recyclerView);
+            textViewShowComments = itemView.findViewById(R.id.show_comments);
             textViewHideComments = itemView.findViewById(R.id.hide_comments);
         }
     }

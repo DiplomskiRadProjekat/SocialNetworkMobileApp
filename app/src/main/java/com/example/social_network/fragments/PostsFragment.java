@@ -62,7 +62,6 @@ public class PostsFragment extends Fragment {
         } else {
             getUserPosts();
         }
-        recyclerViewPosts.setAdapter(postsAdapter);
 
         return view;
     }
@@ -97,8 +96,8 @@ public class PostsFragment extends Fragment {
             public void onResponse(@NonNull Call<List<PostDTO>> call, @NonNull Response<List<PostDTO>> response) {
                 if (response.isSuccessful()) {
                     List<PostDTO> posts = response.body();
-                    PostsAdapter adapter = new PostsAdapter(posts, getContext(), token, home, myId, userId);
-                    recyclerViewPosts.setAdapter(adapter);
+                    postsAdapter = new PostsAdapter(posts, getContext(), token, home, myId, userId);
+                    recyclerViewPosts.setAdapter(postsAdapter);
                 } else {
                     Log.e("API Error", "Failed to fetch posts: " + response.message());
                 }

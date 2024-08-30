@@ -121,7 +121,6 @@
             android:padding="10dp"/>
     </LinearLayout>
 
-
     <TextView
         android:id="@+id/show_comments"
         android:layout_width="match_parent"
@@ -133,10 +132,11 @@
         android:layout_marginBottom="15dp"
         android:textSize="16sp" />
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="16dp"
         android:visibility="gone" />
 
     <TextView

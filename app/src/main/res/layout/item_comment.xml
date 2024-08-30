@@ -47,7 +47,7 @@
                 android:contentDescription="@string/trash_icon"
                 android:src="@drawable/ic_trash"
                 android:layout_gravity="end"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:tint="@color/onSecondaryColor" />
         </LinearLayout>
 
