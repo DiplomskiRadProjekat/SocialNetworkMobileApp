@@ -11,9 +11,14 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -33,6 +38,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.social_network.dtos.NewPostDTO;
 import com.example.social_network.dtos.PostDTO;
+import com.example.social_network.dtos.UserDTO;
 import com.example.social_network.fragments.PostsFragment;
 import com.example.social_network.fragments.SearchResultsFragment;
 import com.example.social_network.services.ServiceUtils;
@@ -56,7 +62,9 @@ public class HomeActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 100;
 
-    private EditText editTextPost, editTextSearch;
+    private EditText editTextSearch;
+
+    private AutoCompleteTextView editTextPost;
 
     private TextView textViewAddImage, textViewSelectedImage;
 
@@ -140,6 +148,65 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
         setupBottomNavigationListener();
+
+        editTextPost.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                String input = charSequence.toString();
+
+                int atIndex = input.lastIndexOf("@");
+
+                if (atIndex >= 0) {
+                    String textBeforeAt = input.substring(0, atIndex + 1);
+                    String query = input.substring(atIndex + 1);
+
+                    loadUserList(query);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        editTextPost.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedUsername = (String) parent.getItemAtPosition(position);
+            String newText = "@" + selectedUsername;
+            editTextPost.setText(newText);
+            editTextPost.setSelection(newText.length());
+        });
+
+    }
+
+    private void loadUserList(String search) {
+        Call<List<UserDTO>> call = ServiceUtils.userService(token).searchUsers(search);
+        call.enqueue(new Callback<List<UserDTO>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<UserDTO>> call, @NonNull Response<List<UserDTO>> response) {
+                if (response.isSuccessful()) {
+                    List<UserDTO> foundUsers = response.body();
+                    assert foundUsers != null;
+                    if (!foundUsers.isEmpty()) {
+                        List<String> usernames = new ArrayList<>();
+                        for (UserDTO user : foundUsers) {
+                            usernames.add(user.getUsername());
+                        }
+
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(HomeActivity.this, R.layout.custom_dropdown_item, usernames);
+                        editTextPost.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<UserDTO>> call, @NonNull Throwable t) {
+            }
+        });
     }
 
     @Override
