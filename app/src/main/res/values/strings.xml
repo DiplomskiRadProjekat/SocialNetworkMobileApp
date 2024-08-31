@@ -65,4 +65,8 @@
     <string name="hello">Hello</string>
     <string name="message_icon">Message icon</string>
     <string name="camera_icon">Camera icon</string>
+    <string name="clear">Clear</string>
+    <string name="choose_images">Choose images</string>
+    <string name="select_images">Select images</string>
+    <string name="post_image">Post image</string>
 </resources>

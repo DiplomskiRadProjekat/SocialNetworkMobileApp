@@ -91,16 +91,15 @@
         android:layout_marginRight="20dp"
         android:textSize="18sp" />
 
-    <ImageView
-        android:id="@+id/post_image"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewPostImages"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:contentDescription="@string/post"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:src="@drawable/ic_loading"
         android:layout_marginBottom="8dp"
-        android:visibility="gone" />
+        android:orientation="horizontal"
+        android:visibility="visible" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -116,6 +115,7 @@
             android:layout_weight="1"
             android:autofillHints=""
             android:hint="@string/write_your_comment"
+            android:inputType="text"
             android:textColorHint="@color/secondaryColorVariant"
             android:background="@drawable/edit_text"
             android:padding="10dp"

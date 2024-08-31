@@ -10,7 +10,7 @@ public class PostDTO {
 
     private String description;
 
-    private String file;
+    private List<String> filePaths;
 
     private String postedAt;
 
@@ -19,11 +19,11 @@ public class PostDTO {
     public PostDTO() {
     }
 
-    public PostDTO(Long id, Long userId, String description, String file, String postedAt, List<CommentDTO> comments) {
+    public PostDTO(Long id, Long userId, String description, List<String> filePaths, String postedAt, List<CommentDTO> comments) {
         this.id = id;
         this.userId = userId;
         this.description = description;
-        this.file = file;
+        this.filePaths = filePaths;
         this.postedAt = postedAt;
         this.comments = comments;
     }
@@ -52,12 +52,12 @@ public class PostDTO {
         this.description = description;
     }
 
-    public String getFile() {
-        return file;
+    public List<String> getFilePaths() {
+        return filePaths;
     }
 
-    public void setFile(String file) {
-        this.file = file;
+    public void setFilePaths(List<String> filePaths) {
+        this.filePaths = filePaths;
     }
 
     public String getPostedAt() {

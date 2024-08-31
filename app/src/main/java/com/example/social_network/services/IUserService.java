@@ -2,6 +2,7 @@ package com.example.social_network.services;
 
 import com.example.social_network.dtos.FriendRequestDTO;
 import com.example.social_network.dtos.FriendRequestStatus;
+import com.example.social_network.dtos.NewPostDTO;
 import com.example.social_network.dtos.PasswordChangeDTO;
 import com.example.social_network.dtos.PostDTO;
 import com.example.social_network.dtos.UpdateUserDTO;
@@ -55,13 +56,8 @@ public interface IUserService {
     @GET(ServiceUtils.user + "/{id}/posts")
     Call<List<PostDTO>> getAllPosts(@Path("id") Long id);
 
-    @Multipart
     @POST(ServiceUtils.user + "/{id}/posts")
-    Call<PostDTO> createPost(
-            @Path("id") Long id,
-            @Part("description") RequestBody description,
-            @Part MultipartBody.Part file
-    );
+    Call<PostDTO> createPost(@Path("id") Long id, @Body NewPostDTO newPostDTO);
 
     @GET(ServiceUtils.user)
     Call<List<UserDTO>> searchUsers(@Query("search") String search);

@@ -93,17 +93,20 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             holder.textViewHideComments.setVisibility(View.GONE);
         });
 
+        if (item.getFilePaths() != null && !item.getFilePaths().isEmpty()) {
+            holder.recyclerViewPostImages.setVisibility(View.VISIBLE);
+            PostImagesAdapter imagesAdapter = new PostImagesAdapter(item.getFilePaths(), context, token);
+            holder.recyclerViewPostImages.setAdapter(imagesAdapter);
+            holder.recyclerViewPostImages.setLayoutManager(
+                    new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            );
+        } else {
+            holder.recyclerViewPostImages.setVisibility(View.GONE);
+        }
 
         holder.imageViewDeletePost.setVisibility((home || !myId.equals(userId)) ? View.GONE : View.VISIBLE);
 
         holder.imageViewDeletePost.setOnClickListener(view -> showAreYouSureDialog(item.getId(), position));
-
-        if (item.getFile() != null) {
-            holder.imageViewPostImage.setVisibility(View.VISIBLE);
-            loadImage(item.getId(), holder.imageViewPostImage);
-        } else {
-            holder.imageViewPostImage.setVisibility(View.GONE);
-        }
 
         holder.buttonSubmitComment.setOnClickListener(view -> {
             String comment = holder.editTextComment.getText().toString();
@@ -181,13 +184,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
         TextView textViewUsername, textViewTimestamp, textViewPostDescription, textViewShowComments, textViewHideComments;
 
-        ImageView imageViewDeletePost, imageViewPostImage, imageViewProfilePicture;
+        ImageView imageViewDeletePost, imageViewProfilePicture;
 
         EditText editTextComment;
 
         Button buttonSubmitComment;
 
-        RecyclerView recyclerView;
+        RecyclerView recyclerView, recyclerViewPostImages;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -195,13 +198,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             textViewTimestamp = itemView.findViewById(R.id.timestamp);
             textViewPostDescription = itemView.findViewById(R.id.post_description);
             imageViewDeletePost = itemView.findViewById(R.id.delete_post);
-            imageViewPostImage = itemView.findViewById(R.id.post_image);
             editTextComment = itemView.findViewById(R.id.comment_input);
             buttonSubmitComment = itemView.findViewById(R.id.submit_comment_button);
             recyclerView = itemView.findViewById(R.id.recyclerView);
             textViewShowComments = itemView.findViewById(R.id.show_comments);
             textViewHideComments = itemView.findViewById(R.id.hide_comments);
             imageViewProfilePicture = itemView.findViewById(R.id.profile_image);
+            recyclerViewPostImages = itemView.findViewById(R.id.recyclerViewPostImages);
         }
     }
 
@@ -263,29 +266,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
             @Override
             public void onFailure(@NonNull Call<UserDTO> call, Throwable t) {
-                Log.d("Fail", Objects.requireNonNull(t.getMessage()));
-            }
-        });
-    }
-
-    private void loadImage(Long postId, ImageView imageView) {
-        Call<ResponseBody> call = ServiceUtils.postService(token).downloadFile(postId);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    Log.i("Success", response.message());
-                    assert response.body() != null;
-                    InputStream inputStream = response.body().byteStream();
-                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                    imageView.setImageBitmap(bitmap);
-                } else {
-                    onFailure(call, new Throwable("API call failed with status code: " + response.code()));
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, Throwable t) {
                 Log.d("Fail", Objects.requireNonNull(t.getMessage()));
             }
         });

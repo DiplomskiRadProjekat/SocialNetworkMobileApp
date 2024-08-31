@@ -30,6 +30,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.example.social_network.dtos.NewPostDTO;
 import com.example.social_network.dtos.PostDTO;
 import com.example.social_network.fragments.PostsFragment;
 import com.example.social_network.fragments.SearchResultsFragment;
@@ -38,6 +40,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import okhttp3.MediaType;
@@ -58,7 +62,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private Button buttonCreatePost;
 
-    private ImageButton buttonSearch;
+    private ImageButton buttonSearch, imageButtonClear;
 
     private ImageView imageViewProfilePicture;
 
@@ -68,22 +72,42 @@ public class HomeActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
 
-    private Uri selectedImageUri;
+    private final List<Uri> selectedImageUris = new ArrayList<>();
 
     private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    assert result.getData() != null;
-                    selectedImageUri = result.getData().getData();
-
-                    String fileName = getFileName(selectedImageUri);
-
-                    textViewAddImage.setVisibility(View.GONE);
-                    textViewSelectedImage.setVisibility(View.VISIBLE);
-                    textViewSelectedImage.setText(fileName);
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    if (result.getData().getClipData() != null) {
+                        int count = result.getData().getClipData().getItemCount();
+                        selectedImageUris.clear();
+                        for (int i = 0; i < count; i++) {
+                            Uri imageUri = result.getData().getClipData().getItemAt(i).getUri();
+                            selectedImageUris.add(imageUri);
+                        }
+                        updateSelectedImagesUI();
+                    } else if (result.getData().getData() != null) {
+                        selectedImageUris.clear();
+                        selectedImageUris.add(result.getData().getData());
+                        updateSelectedImagesUI();
+                    }
                 }
-            });
+            }
+    );
+
+    private void updateSelectedImagesUI() {
+        if (selectedImageUris.isEmpty()) {
+            textViewSelectedImage.setVisibility(View.GONE);
+            imageButtonClear.setVisibility(View.GONE);
+            textViewAddImage.setVisibility(View.VISIBLE);
+        } else {
+            textViewAddImage.setVisibility(View.GONE);
+            textViewSelectedImage.setVisibility(View.VISIBLE);
+            textViewSelectedImage.setText(String.format("%s selected images", selectedImageUris.size()));
+            imageButtonClear.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +124,7 @@ public class HomeActivity extends AppCompatActivity {
         textViewSelectedImage = findViewById(R.id.selectedImage);
         buttonSearch = findViewById(R.id.searchButton);
         imageViewProfilePicture = findViewById(R.id.profile_image);
+        imageButtonClear = findViewById(R.id.clear);
 
         SharedPreferences sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         token = sharedPreferences.getString("pref_token", "");
@@ -130,8 +155,15 @@ public class HomeActivity extends AppCompatActivity {
                         new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
                         REQUEST_CODE_READ_EXTERNAL_STORAGE);
             } else {
-                pickImageFromGallery();
+                pickImagesFromGallery();
             }
+        });
+
+        imageButtonClear.setOnClickListener(view -> {
+            selectedImageUris.clear();
+            textViewSelectedImage.setVisibility(View.GONE);
+            imageButtonClear.setVisibility(View.GONE);
+            textViewAddImage.setVisibility(View.VISIBLE);
         });
 
         buttonCreatePost.setOnClickListener(v -> createPost());
@@ -146,30 +178,10 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
-    private String getFileName(Uri uri) {
-        String fileName = null;
-        Cursor cursor = null;
-        try {
-            String[] projection = { MediaStore.Images.Media.DISPLAY_NAME };
-            cursor = getContentResolver().query(uri, projection, null, null, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
-                fileName = cursor.getString(columnIndex);
-            } else {
-                Log.e("getFileName", "Cursor is empty or could not move to first");
-            }
-        } catch (IllegalArgumentException e) {
-            Log.e("getFileName", "IllegalArgumentException: " + e.getMessage());
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        return fileName;
-    }
-
-    private void pickImageFromGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+    private void pickImagesFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         pickImageLauncher.launch(intent);
     }
 
@@ -187,30 +199,25 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         if (!hasError) {
-            RequestBody descriptionBody = RequestBody.create(description, MediaType.parse("text/plain"));
-
-            MultipartBody.Part filePart = null;
-            if (selectedImageUri != null) {
-                String filePath = getPathFromUri(selectedImageUri);
-                if (filePath == null) {
-                    Toast.makeText(this, "Unable to get the file path", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                File file = new File(filePath);
-                RequestBody fileBody = RequestBody.create(MediaType.parse("image/*"), file);
-                filePart = MultipartBody.Part.createFormData("file", file.getName(), fileBody);
-            }
-
-            Call<PostDTO> call = ServiceUtils.userService(token).createPost(myId, descriptionBody, filePart);
+            NewPostDTO newPost = new NewPostDTO(description);
+            Call<PostDTO> call = ServiceUtils.userService(token).createPost(myId, newPost);
             call.enqueue(new Callback<PostDTO>() {
                 @Override
                 public void onResponse(@NonNull Call<PostDTO> call, @NonNull Response<PostDTO> response) {
                     if (response.isSuccessful()) {
                         Toast.makeText(HomeActivity.this, "Post created successfully!", Toast.LENGTH_SHORT).show();
-                        editTextPost.setText("");
-                        textViewSelectedImage.setVisibility(View.GONE);
-                        textViewAddImage.setVisibility(View.VISIBLE);
+                        PostDTO createdPost = response.body();
+                        if (createdPost != null) {
+                            Long postId = createdPost.getId();
+                            editTextPost.setText("");
+                            textViewSelectedImage.setVisibility(View.GONE);
+                            imageButtonClear.setVisibility(View.GONE);
+                            textViewAddImage.setVisibility(View.VISIBLE);
+
+                            if (!selectedImageUris.isEmpty()) {
+                                uploadImagesToPost(postId, selectedImageUris);
+                            }
+                        }
                     } else {
                         Toast.makeText(HomeActivity.this, "Failed to create post", Toast.LENGTH_SHORT).show();
                     }
@@ -223,6 +230,38 @@ public class HomeActivity extends AppCompatActivity {
             });
         }
     }
+
+    private void uploadImagesToPost(Long postId, List<Uri> imageUris) {
+        for (Uri uri : imageUris) {
+            String filePath = getPathFromUri(uri);
+            if (filePath == null) {
+                Toast.makeText(this, "Upload failed for : " + uri.toString(), Toast.LENGTH_SHORT).show();
+                continue;
+            }
+
+            File file = new File(filePath);
+            RequestBody fileBody = RequestBody.create(MediaType.parse("image/*"), file);
+            MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(), fileBody);
+
+            Call<Void> call = ServiceUtils.postService(token).setImageToPost(postId, filePart);
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Log.i("ImageUpload", "Image successfully added to post with id: " + postId);
+                    } else {
+                        Log.e("ImageUpload", "Image upload failed for post with id: " + postId);
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                    Log.e("ImageUpload", "Image upload failed for post: " + t.getMessage());
+                }
+            });
+        }
+    }
+
 
     private String getPathFromUri(Uri uri) {
         String[] projection = {MediaStore.Images.Media.DATA};
@@ -242,7 +281,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                pickImageFromGallery();
+                pickImagesFromGallery();
             } else {
                 Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
             }
